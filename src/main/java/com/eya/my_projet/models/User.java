@@ -1,6 +1,7 @@
 package com.eya.my_projet.models;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -8,33 +9,59 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 @Entity
+@Inheritance(strategy= InheritanceType.JOINED)
+
 @Table(name = "users", uniqueConstraints = { @UniqueConstraint(columnNames = "username"),
-		@UniqueConstraint(columnNames = "email") })
-public class User {
+@UniqueConstraint(columnNames = "email") })
+
+public abstract  class User {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.TABLE)
 	private Long id;
+	
 	@NotBlank
 	@Size(max = 20)
-	private String username;
+	protected String username;
+	
 	@NotBlank
 	@Size(max = 50)
 	@Email
-	private String email;
+	protected String email;
+
 	@NotBlank
 	@Size(max = 120)
-	private String password;
+	protected String password;
 	
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles = new HashSet<>();
 
+	@OneToOne()
+	@JoinColumn(name = "id", referencedColumnName = "user_id")
+	private Client client;
 	
-	 
-	@OneToMany(mappedBy="user")
-    private Set<FileDB> files;
+	@OneToOne()
+	@JoinColumn(name = "id", referencedColumnName = "user_id")
+	private Comptable comptable;
+
+	
+	@OneToMany(mappedBy="recipient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<FileDB> recievedFiles;
 	
 	
+	@OneToMany(mappedBy= "sender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<FileDB> sendedFiles;
+	
+	@OneToMany(mappedBy= "sender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Message> sendedMessages;
+	
+	@OneToMany(mappedBy= "reciever", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Message> recievedMessages;
+	
+	
+
+	@OneToMany(mappedBy="user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<Thread> threads;
 	
 	public User() {
 	}
@@ -44,7 +71,54 @@ public class User {
 		this.email = email;
 		this.password = password;
 	}
+	
+	
+	
+	
+	public List<Thread> getThreads() {
+		return threads;
+	}
 
+	public void setThreads(List<Thread> threads) {
+		this.threads = threads;
+	}
+
+	public void setClient(Client client) {
+		this.client = client;
+	}
+
+	public void setRecievedMessages(Set<Message> recievedMessages) {
+		this.recievedMessages = recievedMessages;
+	}
+
+	public Comptable getComptable() {
+		return comptable;
+	}
+
+	public void setComptable(Comptable comptable) {
+		this.comptable = comptable;
+	}
+
+	public Set<FileDB> getRecievedFiles() {
+		return recievedFiles;
+	}
+
+	public void setRecievedFiles(Set<FileDB> recievedFiles) {
+		this.recievedFiles = recievedFiles;
+	}
+
+	public Set<FileDB> getSendedFiles() {
+		return sendedFiles;
+	}
+
+	public void setSendedFiles(Set<FileDB> sendedFiles) {
+		this.sendedFiles = sendedFiles;
+	}
+
+	public Client getClient() {
+		return this.client;
+	}
+	
 	public Long getId() {
 		return id;
 	}
@@ -84,5 +158,5 @@ public class User {
 	public void setUsername(String username) {
 		this.username = username;
 	}
-
+	
 }

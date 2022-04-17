@@ -1,6 +1,7 @@
 package com.eya.my_projet.services;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -8,19 +9,31 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.eya.my_projet.Repository.FileDBRepository;
-import com.eya.my_projet.models.FileDB;
+import com.eya.my_projet.Repository.UserRepository;
+import com.eya.my_projet.models.FileDB; 
+import com.eya.my_projet.models.User;
 
 
 @Service
 public class FileStorageService {
 	 @Autowired
 	  private FileDBRepository fileDBRepository;
-	  public FileDB store(MultipartFile file) throws IOException {
+	  
+	 @Autowired
+	 private UserRepository userRepository;
+	 
+	 
+	 public FileDB store(MultipartFile file, User sender, User recipient) throws IOException {
 	    String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-	    FileDB FileDB = new FileDB(fileName, file.getContentType(), file.getBytes());
-	    return fileDBRepository.save(FileDB);
+	    FileDB fileDB = new FileDB(fileName, file.getContentType(), file.getBytes());
+	    
+	    fileDB.setRecipent(recipient);
+	    fileDB.setSender(sender);
+	    
+	    return fileDBRepository.save(fileDB);
 	  }
-	  public FileDB getFile(String id) {
+	 
+	 public FileDB getFile(String id) {
 	    return fileDBRepository.findById(id).get();
 	  }
 	  

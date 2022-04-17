@@ -12,43 +12,94 @@ import org.hibernate.annotations.GenericGenerator;
 @Entity
 @Table(name = "files")
 public class FileDB {
-  @Id
-  @GeneratedValue(generator = "uuid")
-  @GenericGenerator(name = "uuid", strategy = "uuid2")
-  private String id;
-  private String name;
-  private String type;
-  @Lob
-  private byte[] data;
+  
+	
+	@Id
+	@GeneratedValue(generator = "uuid")
+	@GenericGenerator(name = "uuid", strategy = "uuid2")
+	private String id;
+	
+	
+	private String name;
+	
+	private String type;
+
+	@Lob
+	private byte[] data;
+  
+	private long status = 0;
+  
+	@ManyToOne
+	@JoinColumn(name="recipient_id", nullable=false)
+	private User recipient;
+	
+	@ManyToOne
+	@JoinColumn(name="sender_id", nullable=false)
+	private User sender;
+	
   
   
   
+	public FileDB() {
+	}
   
   
-  @ManyToOne
-  @JoinColumn(name="user_id", nullable=false)
-  private User user;
-  
-  
-  
-  
-  
-  
-  public FileDB() {
-  }
-  
-  
+	
+	public long getStatus() {
+		return status;
+	}
+
+	public void setStatus(long status) {
+		this.status = status;
+	}
  
   
   
   
   
-  public FileDB(String name, String type, byte[] data) {
-    this.name = name;
-    this.type = type;
-    this.data = data;
-  }
-  public String getId() {
+	  public FileDB(String name, String type, byte[] data) {
+	    this.name = name;
+	    this.type = type;
+	    this.data = data;
+	  
+	  }
+  public FileDB(String id, String name, String type, byte[] data) {
+	super();
+	this.id = id;
+	this.name = name;
+	this.type = type;
+	this.data = data;
+}
+
+
+
+
+
+
+
+public User getRecipent() {
+	return recipient;
+}
+
+
+
+
+public void setRecipent(User recipent) {
+	this.recipient = recipent;
+}
+
+
+public User getSender() {
+	return sender;
+}
+
+
+public void setSender(User sender) {
+	this.sender = sender;
+}
+
+
+public String getId() {
     return id;
   }
   public String getName() {
