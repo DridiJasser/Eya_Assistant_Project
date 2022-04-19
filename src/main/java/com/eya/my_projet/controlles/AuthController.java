@@ -51,7 +51,7 @@ public class AuthController {
 	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 		System.out.println("signin : ");
 		Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+		new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		String jwt = jwtUtils.generateJwtToken(authentication);
 
@@ -111,7 +111,7 @@ public class AuthController {
 			roles.add(clientRole);
 			client.setRoles(roles);
 			userRepository.save(client);
-			return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+			return ResponseEntity.ok(new MessageResponse("client registered successfully!"));
 	}		
 	
 	

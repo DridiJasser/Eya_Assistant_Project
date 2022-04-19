@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.eya.my_projet.Repository.DemandeRepository;
 import com.eya.my_projet.Repository.FileDBRepository;
 import com.eya.my_projet.Repository.UserRepository;
 import com.eya.my_projet.models.Demande;
@@ -46,8 +47,16 @@ public class FileController {
 	@Autowired
 	private FileDBRepository fileRepo;
 	
+	@Autowired
+	private DemandeRepository demandeRepo;
+	
 	@PostMapping("/upload")
-	public ResponseEntity<MessageResponse> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("recipient") Long recipentId) {
+	public ResponseEntity<MessageResponse> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("demande") long idDemande, @RequestParam("recipient") Long recipentId, @RequestParam("type") String type) throws Exception {
+		Demande demande = this.demandeRepo.findById(idDemande).get();
+		
+		if(demande.getEtat() != 1) {
+			throw new Exception("action non autorisée");
+		}
 		
 		String message = "";
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -57,7 +66,7 @@ public class FileController {
 		User recipient = this.userRepo.findById(recipentId).get();
 		
 		try {
-			storageService.store(file, sender, recipient);
+			storageService.store(file, sender, recipient, type);
 			
 			return ResponseEntity.status(HttpStatus.OK).body(new MessageResponse(message));
 		} catch (Exception e) {
@@ -85,7 +94,14 @@ public class FileController {
 	}
 	
 	@PostMapping("/file/comptable/markerEnCours")
-	public ResponseEntity<Properties> markerEnCours(@RequestBody Properties request) {
+	public ResponseEntity<Properties> markerEnCours(@RequestBody Properties request, Authentication auth) throws Exception {
+		UserDetailsImpl userPrincipal = (UserDetailsImpl) auth.getPrincipal();
+		User user = this.userRepo.findByUsername(userPrincipal.getUsername()).get();
+		
+		if(!user.hasRole("ROLE_Comptable")) {
+			throw new Exception("accées non autorisé");
+		}
+		
 		Properties response = new Properties();
 		
 		String id = (String)request.get("file");
@@ -102,7 +118,14 @@ public class FileController {
 	
 	
 	@PostMapping("/file/comptable/markerTraite")
-	public ResponseEntity<Properties> markerTraite(@RequestBody Properties request) {
+	public ResponseEntity<Properties> markerTraite(@RequestBody Properties request, Authentication auth) throws Exception {
+		UserDetailsImpl userPrincipal = (UserDetailsImpl) auth.getPrincipal();
+		User user = this.userRepo.findByUsername(userPrincipal.getUsername()).get();
+		
+		if(!user.hasRole("ROLE_Comptable")) {
+			throw new Exception("accées non autorisé");
+		}
+		
 		Properties response = new Properties();
 		
 		String id = (String)request.get("demande");

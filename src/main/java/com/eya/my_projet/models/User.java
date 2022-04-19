@@ -8,13 +8,15 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Inheritance(strategy= InheritanceType.JOINED)
 
 @Table(name = "users", uniqueConstraints = { @UniqueConstraint(columnNames = "username"),
 @UniqueConstraint(columnNames = "email") })
-
-public abstract  class User {
+@JsonIgnoreProperties({ "password", "comptable", "client" })
+public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE)
 	private Long id;
@@ -63,8 +65,7 @@ public abstract  class User {
 	@OneToMany(mappedBy="user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<Thread> threads;
 	
-	public User() {
-	}
+	public User() { }
 
 	public User(String username, String email, String password) {
 		this.username = username;
@@ -157,6 +158,15 @@ public abstract  class User {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+	
+	public boolean hasRole(String role) {
+		for (Role r: this.roles) {
+			if(r.getName().name() == role) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 }

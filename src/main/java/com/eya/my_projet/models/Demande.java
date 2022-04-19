@@ -1,12 +1,19 @@
 package com.eya.my_projet.models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
+@JsonIgnoreProperties({ "id", "comptable", "client" })
 public class Demande {
 	
 	@Id
@@ -25,6 +32,9 @@ public class Demande {
 	 
 	 @ManyToOne @JoinColumn(name="idClient", nullable=false)
 	 private Client client;
+	 
+	 @OneToMany(targetEntity=FileDB.class, mappedBy="demande" )
+	 private List<FileDB> files = new ArrayList<>();
 	 
 	 
 	 public Demande(){}

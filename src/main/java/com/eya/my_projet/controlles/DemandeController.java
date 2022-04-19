@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -33,7 +34,7 @@ import com.eya.my_projet.models.Demande;
 import com.eya.my_projet.models.User;
 import com.eya.my_projet.payload.request.AcceptRequest;
 import com.eya.my_projet.payload.request.DemandeRequest;
-
+import com.eya.my_projet.payload.request.RefuseRequest;
 import com.eya.my_projet.response.MessageResponse;
 import com.eya.my_projet.security.services.UserDetailsImpl;
 import com.eya.my_projet.security.services.UserDetailsServiceImpl;
@@ -75,17 +76,10 @@ public class DemandeController  {
 		demande.setClient(client);
 		demande.setComptable(comptable);
 		
-		/*String dateAccep = DateTime.now().toString();
-		demande.setDateAC(dateAccep);
-		*/
-		/*
-		DateTime date = new DateTime(demande.getDateD());
-		Period  period = new Period().withYears(2);
 		
-		DateTime dateFin = date.plus(period);
+		DateTime date = DateTime.now();
 		
-		demande.setDateRF(dateFin.toString());
-		*/
+		demande.setDateD(date.toString());
 		
 		demandeRepo.save(demande);
 		return ResponseEntity.ok(new MessageResponse("demande saved successfully!"));
@@ -108,7 +102,14 @@ public class DemandeController  {
 	}
 
 	@GetMapping("/demande/comptable")	
-	public ResponseEntity<List<Demande>> comptables(@RequestBody DemandeRequest request) {
+	public ResponseEntity<List<Demande>> comptables(@RequestBody DemandeRequest request, Authentication auth) throws Exception {
+		UserDetailsImpl userPrincipal = (UserDetailsImpl) auth.getPrincipal();
+		User user = this.userRepo.findByUsername(userPrincipal.getUsername()).get();
+		
+		if(!user.hasRole("ROLE_Comptable")) {
+			throw new Exception("accées non autorisé");
+		}
+		
 		List<Demande> demandes = this.demandeRepo.findAllByComptable(
 				this.comptableRepo.findById(request.getIdComp()).get()
 				).get();
@@ -116,22 +117,62 @@ public class DemandeController  {
 	}
 	
 	@GetMapping("/demande/client")	
-	public ResponseEntity<List<Demande>> clients(@RequestBody DemandeRequest request) {
+	public ResponseEntity<List<Demande>> clients(@RequestBody DemandeRequest request, Authentication auth) throws Exception {
+		UserDetailsImpl userPrincipal = (UserDetailsImpl) auth.getPrincipal();
+		User user = this.userRepo.findByUsername(userPrincipal.getUsername()).get();
+		
+		if(!user.hasRole("ROLE_Client")) {
+			throw new Exception("accées non autorisé");
+		}
+		
 		List<Demande> demandes = this.demandeRepo.findAllByClient(this.clientRepo.findById(request.getIdC()).get()).get();
 		return new ResponseEntity<List<Demande>>(demandes, HttpStatus.OK);
 	}
 	
 	
-	@PostMapping("/demande/comptable/accept")
-	public ResponseEntity<Properties> accept(@RequestBody AcceptRequest request) {
+	@PutMapping("/demande/comptable/accept")
+	public ResponseEntity<Properties> accept(@RequestBody AcceptRequest request, Authentication auth) throws Exception {
+		
+		UserDetailsImpl userPrincipal = (UserDetailsImpl) auth.getPrincipal();
+		User user = this.userRepo.findByUsername(userPrincipal.getUsername()).get();
+		
+		if(!user.hasRole("ROLE_Comptable")) {
+			throw new Exception("accées non autorisé");
+		}
+		
+		
 		Properties response = new Properties();
 		Demande demande = this.demandeRepo.findById(request.getIdDemande()).get();
 		demande.setEtat(1);
+		DateTime date = new DateTime(demande.getDateAC());
+		String dateAccep = date.plusYears(Integer.parseInt(demande.getDuree())).toString();
+		demande.setDateAC(dateAccep);
 		this.demandeRepo.save(demande);
 		response.put("message", "demande accepté avec succées");
 		return new ResponseEntity<Properties>(response, HttpStatus.OK);
 	}
 	
+	@PutMapping("/demande/comptable/refuse")
+	public ResponseEntity<Properties> refuse(@RequestBody RefuseRequest request,Authentication auth) throws Exception{
+		
+		UserDetailsImpl userPrincipal = (UserDetailsImpl) auth.getPrincipal();
+		User user = this.userRepo.findByUsername(userPrincipal.getUsername()).get();
+		
+		if(!user.hasRole("ROLE_Comptable")) {
+			throw new Exception("accées non autorisé");
+		}
+		
+		
+		Properties response = new Properties();
+		Demande demande = this.demandeRepo.findById(request.getIdDemande()).get();
+		demande.setEtat(0);
+		String dateRefuse = DateTime.now().toString();
+		demande.setDateAC(dateRefuse);
+		this.demandeRepo.save(demande);
+		
+		response.put("message", "demande refusée avec succées");
+		return new ResponseEntity<Properties>(response, HttpStatus.OK);
+	}
 	
 	
 }

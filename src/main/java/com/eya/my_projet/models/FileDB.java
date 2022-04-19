@@ -24,11 +24,27 @@ public class FileDB {
 	
 	private String type;
 
+	
 	@Lob
 	private byte[] data;
   
+	public Demande getDemande() {
+		return demande;
+	}
+
+
+
+	public void setDemande(Demande demande) {
+		this.demande = demande;
+	}
 	private long status = 0;
   
+	@ManyToOne
+	@JoinColumn(name="demande_id", nullable=false)
+	private Demande demande;
+	
+	
+	
 	@ManyToOne
 	@JoinColumn(name="recipient_id", nullable=false)
 	private User recipient;

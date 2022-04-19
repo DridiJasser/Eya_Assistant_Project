@@ -32,7 +32,8 @@ public class Message {
 	@JoinColumn(name="reciever_id", nullable=false)
 	private User reciever;
 
-
+	public Message() { }
+	
 	public Message(String contenu) {
 		super();
 		this.contenu = contenu;

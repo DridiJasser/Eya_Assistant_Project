@@ -23,12 +23,13 @@ public class FileStorageService {
 	 private UserRepository userRepository;
 	 
 	 
-	 public FileDB store(MultipartFile file, User sender, User recipient) throws IOException {
+	 public FileDB store(MultipartFile file, User sender, User recipient, String type) throws IOException {
 	    String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 	    FileDB fileDB = new FileDB(fileName, file.getContentType(), file.getBytes());
 	    
 	    fileDB.setRecipent(recipient);
 	    fileDB.setSender(sender);
+	    fileDB.setType(type);
 	    
 	    return fileDBRepository.save(fileDB);
 	  }

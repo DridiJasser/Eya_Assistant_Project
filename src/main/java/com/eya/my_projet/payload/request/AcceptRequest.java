@@ -2,12 +2,8 @@ package com.eya.my_projet.payload.request;
 
 public class AcceptRequest {
 
-	private Long idDemande;
+	public Long idDemande;
 
-	public AcceptRequest(Long idDemande) {
-		super();
-		this.idDemande = idDemande;
-	}
 
 	public Long getIdDemande() {
 		return idDemande;

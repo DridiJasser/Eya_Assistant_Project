@@ -43,24 +43,15 @@ public class UserController {
 
 	@GetMapping("/users")
 	public ResponseEntity<List<User>> getAlluseres() {
-
-		try {
-			List<User> users1 = userRepository.findAll();
-
-			if (users1.isEmpty()) {
-
-				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-			}
-			return new ResponseEntity<List<User>>(users1,HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+		List<User> users1 = userRepository.findAll();
+		
+		return new ResponseEntity<List<User>>(users1,HttpStatus.OK);
 
 	}
 
 	
 	
-	@GetMapping("/comptable")
+	@GetMapping("/comptablee")
 	public ResponseEntity<List<Comptable>> getAllcomptable() {
 
 		try {

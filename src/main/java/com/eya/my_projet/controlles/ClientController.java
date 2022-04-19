@@ -39,6 +39,7 @@ public class ClientController {
 		
 		List<Comptable> comptables = this.demandeRepo.findAllByClient(client).get()
 				.stream()
+				.filter(demande -> demande.getEtat() == 1)
 				.map(demande -> demande.getComptable())
 				.collect(Collectors.toList());
 	
