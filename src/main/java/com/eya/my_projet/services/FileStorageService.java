@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.eya.my_projet.Repository.FileDBRepository;
 import com.eya.my_projet.Repository.UserRepository;
+import com.eya.my_projet.models.Demande;
 import com.eya.my_projet.models.FileDB; 
 import com.eya.my_projet.models.User;
 
@@ -23,13 +24,14 @@ public class FileStorageService {
 	 private UserRepository userRepository;
 	 
 	 
-	 public FileDB store(MultipartFile file, User sender, User recipient, String type) throws IOException {
+	 public FileDB store(MultipartFile file, User sender, User recipient, String type, Demande demande) throws IOException {
 	    String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 	    FileDB fileDB = new FileDB(fileName, file.getContentType(), file.getBytes());
 	    
 	    fileDB.setRecipent(recipient);
 	    fileDB.setSender(sender);
 	    fileDB.setType(type);
+	    fileDB.setDemande(demande);
 	    
 	    return fileDBRepository.save(fileDB);
 	  }

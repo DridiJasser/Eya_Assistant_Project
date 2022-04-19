@@ -51,28 +51,22 @@ public class FileController {
 	private DemandeRepository demandeRepo;
 	
 	@PostMapping("/upload")
-	public ResponseEntity<MessageResponse> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("demande") long idDemande, @RequestParam("recipient") Long recipentId, @RequestParam("type") String type) throws Exception {
+	public ResponseEntity<MessageResponse> uploadFile(Authentication auth, @RequestParam("file") MultipartFile file, @RequestParam("demande") long idDemande, @RequestParam("recipient") Long recipentId, @RequestParam("type") String type) throws Exception {
 		Demande demande = this.demandeRepo.findById(idDemande).get();
 		
 		if(demande.getEtat() != 1) {
 			throw new Exception("action non autorisée");
 		}
 		
-		String message = "";
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String message = "fichier envoyé avec succées";
 		UserDetailsImpl userPrincipal = (UserDetailsImpl) auth.getPrincipal();
 		
 		User sender = this.userRepo.findByUsername(userPrincipal.getUsername()).get();
 		User recipient = this.userRepo.findById(recipentId).get();
 		
-		try {
-			storageService.store(file, sender, recipient, type);
-			
-			return ResponseEntity.status(HttpStatus.OK).body(new MessageResponse(message));
-		} catch (Exception e) {
-			message = "Could not upload the file: " + file.getOriginalFilename() + "!";
-			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new MessageResponse(message));
-		}
+		storageService.store(file, sender, recipient, type, demande);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(new MessageResponse(message));
 	}
 
 	@GetMapping("/files")
