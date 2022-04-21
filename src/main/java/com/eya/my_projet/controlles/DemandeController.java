@@ -7,6 +7,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
+import javax.websocket.server.PathParam;
 
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -75,7 +77,7 @@ public class DemandeController  {
 		
 		demande.setClient(client);
 		demande.setComptable(comptable);
-		
+		demande.setEtat(-1);
 		
 		DateTime date = DateTime.now();
 		
@@ -100,7 +102,7 @@ public class DemandeController  {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-
+	/*
 	@GetMapping("/demande/comptable")	
 	public ResponseEntity<List<Demande>> comptables(@RequestBody DemandeRequest request, Authentication auth) throws Exception {
 		UserDetailsImpl userPrincipal = (UserDetailsImpl) auth.getPrincipal();
@@ -115,6 +117,17 @@ public class DemandeController  {
 				).get();
 		return new ResponseEntity<List<Demande>>(demandes, HttpStatus.OK);
 	}
+	*/
+	
+	@GetMapping("/demande/comptable")	
+	public ResponseEntity<List<Demande>> getAllDemondeForComptable(@PathParam(value = "idC") long request) throws Exception {
+	
+		List<Demande> demandes = this.demandeRepo.findAllByComptable(
+				this.comptableRepo.findById(request).get()
+				).get();
+		return new ResponseEntity<List<Demande>>(demandes, HttpStatus.OK);
+	}
+	/*
 	
 	@GetMapping("/demande/client")	
 	public ResponseEntity<List<Demande>> clients(@RequestBody DemandeRequest request, Authentication auth) throws Exception {
@@ -126,6 +139,16 @@ public class DemandeController  {
 		}
 		
 		List<Demande> demandes = this.demandeRepo.findAllByClient(this.clientRepo.findById(request.getIdC()).get()).get();
+		return new ResponseEntity<List<Demande>>(demandes, HttpStatus.OK);
+	}
+	*/
+
+	@GetMapping("/demande/client")	
+	public ResponseEntity<List<Demande>> clients(@PathParam(value = "idC") String idC) throws Exception {
+		Long idc= Long.parseLong(idC);
+	
+		
+		List<Demande> demandes = this.demandeRepo.findAllByClient(this.clientRepo.findById(idc).get()).get();
 		return new ResponseEntity<List<Demande>>(demandes, HttpStatus.OK);
 	}
 	

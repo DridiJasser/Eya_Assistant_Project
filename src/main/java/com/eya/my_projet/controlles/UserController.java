@@ -82,7 +82,8 @@ public class UserController {
 
 	
 	@PutMapping("/users/{id}")
-	public ResponseEntity<User> updateUser(@PathVariable("id") Long id, @RequestBody User user) {
+	public ResponseEntity<User> updateUser(@PathVariable("id") Long id, @RequestBody User user) 
+	{
 		Optional<User> UserData = userRepository.findById(id);
 		if (UserData.isPresent()) {
 			User _User = UserData.get();

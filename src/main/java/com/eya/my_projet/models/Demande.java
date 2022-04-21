@@ -13,7 +13,7 @@ import javax.persistence.OneToMany;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
-@JsonIgnoreProperties({ "id", "comptable", "client" })
+@JsonIgnoreProperties({   })
 public class Demande {
 	
 	@Id
